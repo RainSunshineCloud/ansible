@@ -1,0 +1,4 @@
+source: nginx-1.16.0.tar.gz
+yum_source: opsx-centos7.repo
+
+

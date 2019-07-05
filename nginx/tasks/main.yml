@@ -1,0 +1,46 @@
+---
+- name: judge a file or dir is exits
+  shell: "/usr/bin/nginx -v"
+  ignore_errors: True
+  register: result
+- name: aliyun yum 
+  copy: 
+    src: "{{yum_source}}"
+    dest: "/etc/yum.repos.d/{{yum_source}}"
+    force: false
+- name: depends install
+  yum: 
+    name: gcc,pcre,pcre-devel,zlib,zlib-devel,openssl,openssl-devel
+    state: present
+  when: result is failed
+- name: add nginx group
+  group: 
+    name: nginx
+- name: add nginx user
+  user: 
+    name: nginx
+    group: nginx
+    shell: /sbin/nologin
+- name: add source dictory
+  file:
+    group: root
+    owner: root
+    mode:  1777
+    recurse: true
+    state: directory
+    path: /resource/nginx/
+  when: result is failed
+- name: copy nginx
+  copy:
+    src: "{{ source }}"
+    dest: "/resource/nginx/{{source}}"
+  when: result is failed
+- name: copy shell bash
+  copy: 
+    src: install.sh
+    dest: /resource/nginx/
+  when: result is failed
+- name: exec install.sh 
+  shell: "/bin/bash /resource/nginx/install.sh {{source}}"
+  when: result is failed
+...

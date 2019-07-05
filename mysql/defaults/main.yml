@@ -1,0 +1,4 @@
+yum_source: mysql80-community-release-el7-3.noarch.rpm
+repo: mysql80-community
+
+

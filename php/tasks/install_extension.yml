@@ -1,0 +1,29 @@
+---
+- name: add source dictory
+  file:
+    group: root
+    owner: root
+    mode:  1777
+    state: directory
+    path: /resource/php/extensions
+- name: copy source
+  copy:
+    src: "extensions/{{ item.file }}"
+    dest: "/resource/php/extensions"
+  when:  item.dir != "ext"
+  with_items: "{{ extensions }}"
+- name: install depends 
+  yum: 
+    name:  "{{ item.yum }}"
+    state: present 
+  when: item.yum is defined
+  with_items: "{{ extensions }}"
+
+- name: copy shell bash
+  copy: 
+    src: install_extension.sh
+    dest: /resource/php/
+- name: exec install_extensions.sh 
+  shell: "/bin/bash /resource/php/install_extension.sh {{dist}} {{item.dir}} {{source}} {{ item.file }}"
+  with_items: "{{ extensions }}"
+...

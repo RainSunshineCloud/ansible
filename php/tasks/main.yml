@@ -1,0 +1,42 @@
+---
+- name: judge a file or dir is exits
+  shell: "ls /usr/local/php/{{dist}}/bin/php"
+  ignore_errors: True
+  register: result
+- name: aliyun yum 
+  copy: 
+    src: "{{yum_source}}"
+    dest: "/etc/yum.repos.d/{{yum_source}}"
+  when: result is failed
+- name: gcc install
+  yum: 
+      name: gcc,gcc-c++,glibc-headers,autoconf,bison,bison-devel,automake,libxml2,libxml2-devel
+      state: latest
+  when: result is failed
+- name: add source dictory
+  file:
+    group: root
+    owner: root
+    mode:  1777
+    recurse: true
+    state: directory
+    path: /resource/php/
+  when: result is failed
+- name: copy php
+  copy:
+    src: "{{ source }}"
+    dest: "/resource/php/{{source}}"
+  when: result is failed
+- name: copy shell bash
+  copy: 
+    src: install.sh
+    dest: /resource/php/
+  when: result is failed
+- name: exec php.sh 
+  shell: "/bin/bash /resource/php/install.sh {{source}} {{dist}} "
+  when: result is failed
+- name: install extension
+  include: install_extension.yml
+  when: extensions is defined
+       
+...

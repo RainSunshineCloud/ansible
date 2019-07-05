@@ -1,0 +1,32 @@
+---
+- name: judge a file or dir is exits
+  shell: "mysql --version"
+  ignore_errors: True
+  register: result
+- name: aliyun yum 
+  copy: 
+    src: "{{ yum_source }}"
+    dest: "/resource/mysql/{{ yum_source }}"
+    force: false
+- name: add source dictory
+  file:
+    group: root
+    owner: root
+    mode:  1777
+    recurse: true
+    state: directory
+    path: /resource/mysql/
+  when: result is failed
+- name: mysql yum
+  yum: 
+    name: "/resource/mysql/{{ yum_source }}"
+    state: present
+  when: result is failed
+- name: install mysql
+  yum:
+    name: "mysql-server,mysql"
+    state: present
+    enablerepo: "{{repo}}"
+- name: init mysql
+  shell: "mysqld --initialize --user=mysql --basedir=/usr/local/mysql --datadir=/usr/local/mysql/data --pid-file=/usr/local/mysql/mysqld.pid --socket=/usr/local/mysql/mysql.sock"
+...
