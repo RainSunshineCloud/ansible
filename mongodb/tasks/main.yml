@@ -1,0 +1,16 @@
+---
+- name: epel install
+  yum: 
+    name: epel-release
+    state: present
+- name: mongodb install
+  yum: 
+    name: mongodb,mongodb-server
+    state: present
+- name: mongodb data directory
+  file:
+    path: /data/db
+    state: directory
+    force: false
+    recurse: true
+...

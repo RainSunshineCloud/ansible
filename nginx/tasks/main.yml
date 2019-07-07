@@ -43,4 +43,25 @@
 - name: exec install.sh 
   shell: "/bin/bash /resource/nginx/install.sh {{source}}"
   when: result is failed
+- name: copy config
+  copy: 
+    src: conf.d/
+    dest: /usr/local/nginx/conf/conf.d/
+- name: copy nginx.conf
+  copy:
+    src: nginx.conf
+    dest: /usr/local/nginx/conf/nginx.conf
+    force: true
+- name: copy service
+  copy:
+    src: nginx.service
+    dest: /lib/systemd/system/nginx.service
+- name: add directory
+  file: 
+    group: root
+    owner: root
+    mode: 0755
+    recurse: true
+    state: directory
+    path: /data/web/
 ...

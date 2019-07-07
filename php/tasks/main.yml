@@ -3,6 +3,16 @@
   shell: "ls /usr/local/php/{{dist}}/bin/php"
   ignore_errors: True
   register: result
+- name: ryanwu group create
+  group:
+    name: ryanwu
+    state: present
+- name: ryanwu user create
+  user: 
+    name: ryanwu
+    group: ryanwu
+    state: present
+    shell: /sbin/nologin
 - name: aliyun yum 
   copy: 
     src: "{{yum_source}}"
@@ -10,10 +20,10 @@
   when: result is failed
 - name: gcc install
   yum: 
-      name: gcc,gcc-c++,glibc-headers,autoconf,bison,bison-devel,automake,libxml2,libxml2-devel
+      name: gcc,gcc-c++,glibc-headers,autoconf,bison,bison-devel,automake,libxml2,libxml2-devel,make
       state: latest
   when: result is failed
-- name: add source dictory
+- name: add source directory
   file:
     group: root
     owner: root
@@ -21,22 +31,57 @@
     recurse: true
     state: directory
     path: /resource/php/
+- name: add log directory
+  file: 
+    group: ryanwu
+    owner: ryanwu
+    mode: 0755
+    recurse: true
+    state: directory
+    path: /var/log/php/
   when: result is failed
 - name: copy php
   copy:
     src: "{{ source }}"
     dest: "/resource/php/{{source}}"
+    mode: 0755
   when: result is failed
 - name: copy shell bash
   copy: 
     src: install.sh
     dest: /resource/php/
+    mode: 0755
   when: result is failed
 - name: exec php.sh 
   shell: "/bin/bash /resource/php/install.sh {{source}} {{dist}} "
   when: result is failed
-- name: install extension
-  include: install_extension.yml
-  when: extensions is defined
-       
+- name: php.ini
+  copy:
+    src: php.ini
+    dest: /usr/local/php/{{dist}}/etc/php.ini
+    owner: root
+    mode: 0755
+    group: root 
+- name: php-fpm
+  copy:
+    src: php-fpm.conf
+    dest: /usr/local/php/{{dist}}/etc/php-fpm.conf
+    owner: root
+    mode: 0755
+    group: root
+    force: true
+- name: php-fpm.d
+  copy:
+    src: php-fpm.d/
+    dest: /usr/local/php/{{dist}}/etc/php-fpm.d/
+    owner: root
+    group: root
+    mode: 0755
+- name: service
+  copy:
+    src: php-fpm.service
+    dest: /lib/systemd/system/php-fpm.service
+    group: root
+    owner: root
+    mode: 0755
 ...

@@ -1,0 +1,10 @@
+---
+- name: judge a file or dir is exits
+  shell: "ls /usr/local/php/{{dist}}/bin/php"
+  ignore_errors: True
+  register: result
+- name: install extension
+  include: install_extension.yml
+  when: extensions is defined and result != false
+       
+...

@@ -1,0 +1,17 @@
+source: php-7.1.30.tar.gz
+dist: php71
+yum_source: opsx-centos7.repo
+extensions: 
+ - file: bcmath
+   dir: ext
+ - file: yaf-3.0.8.tar.gz
+   dir: extensions
+ - file: yaconf-1.0.7.tar.gz
+   dir: extensions
+ - file: swoole-4.3.5.tar.gz
+   dir: extensions
+   yum: glibc-headers,gcc-c++,pcre-devel
+ - file: mongodb-1.5.5.tar.gz
+   dir: extensions
+ - file: php-xhprof-extension.tar.gz 
+   dir: extensions
